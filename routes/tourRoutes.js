@@ -2,11 +2,11 @@ import express from "express";
 
 const router = express.Router();
 
-router.param("id", async (req, res, next, value) => {
-  console.log(`Tour ID is ${value}`);
+// router.param("id", async (req, res, next, value) => {
+//   console.log(`Tour ID is ${value}`);
 
-  next();
-});
+//   next();
+// });
 
 import {
   getTours,
