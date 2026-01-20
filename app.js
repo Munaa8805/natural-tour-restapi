@@ -48,10 +48,14 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/v1/tours", tourRoutes);
 
-// 404 handler
+// 404 handler - only runs if no route matches
 app.use((req, res, next) => {
+  // Check if headers have already been sent (shouldn't happen, but safety check)
+  if (res.headersSent) {
+    return next();
+  }
   const error = new Error(`Not Found - ${req.originalUrl}`);
-  res.status(404);
+  error.statusCode = 404;
   next(error);
 });
 
