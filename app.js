@@ -9,7 +9,11 @@ import { fileURLToPath } from "url";
 import path from "path";
 import connectDB from "./config/db.js";
 import tourRoutes from "./routes/tourRoutes.js";
-import { errorHandler } from "./middleware/errorHandler.js";
+import errorHandler from "./middleware/error.js";
+import ErrorResponse from "./utils/errorResponse.js";
+
+
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -30,7 +34,9 @@ connectDB();
 
 // Middleware
 app.use(cors(options));
-app.use(morgan("dev"));
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(`${__dirname}/public`));
@@ -47,19 +53,16 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use("/api/v1/tours", tourRoutes);
-
+app.use("/api/v1/users/", userRoutes);
 // 404 handler - only runs if no route matches
 app.use((req, res, next) => {
   // Check if headers have already been sent (shouldn't happen, but safety check)
   if (res.headersSent) {
     return next();
   }
-  const error = new Error(`Not Found - ${req.originalUrl}`);
-  error.statusCode = 404;
-  next(error);
+  next(new ErrorResponse(`Not Found - ${req.originalUrl}`, 404));
 });
 
-// Error handler middleware
 app.use(errorHandler);
 
 export default app;

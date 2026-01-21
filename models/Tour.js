@@ -14,32 +14,32 @@ const tourSchema = new mongoose.Schema(
     slug: {
       type: String,
     },
-    duration:{
+    duration: {
       type: Number,
       required: [true, "A tour must have a duration. Must be between 1 and 10 days"],
       min: [1, "Duration must be at least 1 day"],
       max: [10, "Duration must be less than 10 days"],
     },
-    maxGroupSize:{
+    maxGroupSize: {
       type: Number,
       required: [true, "A tour must have a maximum group size. Must be between 5 and 20"],
       min: [5, "Maximum group size must be at least 5"],
       max: [20, "Maximum group size must be less than 20"],
     },
-    difficulty:{
+    difficulty: {
       type: String,
       required: [true, "A tour must have a difficulty. Must be easy, medium, or difficult"],
       enum: ["easy", "medium", "difficult"],
       default: "medium",
     },
-    ratingsAverage:{
+    ratingsAverage: {
       type: Number,
       default: 3,
       min: [1, "Rating must be above 1.0"],
       max: [5, "Rating must be below 5.0"],
-    
+
     },
-    ratingsQuantity:{
+    ratingsQuantity: {
       type: Number,
       default: 0,
     },
@@ -51,7 +51,7 @@ const tourSchema = new mongoose.Schema(
     priceDiscount: {
       type: Number,
       validate: {
-        validator: function(val) {
+        validator: function (val) {
           return val < this.price;
         },
         message: "Discount price must be below the regular price",
@@ -95,14 +95,14 @@ const tourSchema = new mongoose.Schema(
 );
 
 
-tourSchema.virtual("durationWeeks").get(function() {
+tourSchema.virtual("durationWeeks").get(function () {
   const durationWeeks = this.duration / 7
   return durationWeeks.toFixed(2);
 });
 // Document Middleware: runs before .save() and .create()
-tourSchema.pre("save", async function() {
-  if(!this.isModified("name")) return;
-  this.slug =  slugify(this.name, { lower: true, strict: true,trim: true });
+tourSchema.pre("save", async function () {
+  if (!this.isModified("name")) return;
+  this.slug = slugify(this.name, { lower: true, strict: true, trim: true });
 
 });
 
