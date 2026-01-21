@@ -100,15 +100,17 @@ tourSchema.virtual("durationWeeks").get(function() {
   return durationWeeks.toFixed(2);
 });
 // Document Middleware: runs before .save() and .create()
-// tourSchema.pre("save", async function(next) {
+tourSchema.pre("save", async function() {
+  if(!this.isModified("name")) return;
+  this.slug =  slugify(this.name, { lower: true, strict: true,trim: true });
 
-//   this.slug = await slugify(this.name, { lower: true });
+});
+
+
+// tourSchema.post("save", function(doc, next) {
+//   console.log(doc);
 //   next();
 // });
-tourSchema.post("save", function(doc, next) {
-  console.log(doc);
-  next();
-});
 
 //// Query Middleware: runs before .find(), .findOne(), .findOneAndUpdate(), .findOneAndDelete()
 // tourSchema.pre("find", function(next) {

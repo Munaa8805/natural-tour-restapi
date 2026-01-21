@@ -120,8 +120,7 @@ export const getTour = async (req, res, next) => {
 };
 export const createTour = async (req, res, next) => {
   try {
-    // console.log(req.body);
-    req.body.slug = await slugify(req.body.name, { lower: true });
+  
     const newTour = await Tour.create(req.body);
 
    
@@ -149,9 +148,7 @@ export const updateTour = async (req, res, next) => {
         .status(404)
         .json({ message: "Tour not found", error: "Tour not found" });
     }
-    if(req.body.name) {
-      req.body.slug = await slugify(req.body.name, { lower: true });
-    }
+
     const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
