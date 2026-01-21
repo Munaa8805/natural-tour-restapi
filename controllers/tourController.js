@@ -1,4 +1,5 @@
 import Tour from "../models/Tour.js";
+import slugify from "slugify";
 
 
 export const aliasTopTours = (req, res, next) => {
@@ -119,14 +120,19 @@ export const getTour = async (req, res, next) => {
 };
 export const createTour = async (req, res, next) => {
   try {
+    // console.log(req.body);
+    req.body.slug = await slugify(req.body.name, { lower: true });
     const newTour = await Tour.create(req.body);
+
+   
     if (!newTour) {
       return res
         .status(404)
-        .json({ message: "Error creating tour", error: "Error creating tour" });
+        .json({ message: "Error creating tour", error:error.message});
     }
     res.status(200).json({ message: "Hello World", data: newTour });
   } catch (error) {
+   
     res
       .status(404)
       .json({ message: "Error creating tour", error: error.message });
@@ -135,13 +141,18 @@ export const createTour = async (req, res, next) => {
 export const updateTour = async (req, res, next) => {
 
   try {
+    
     const tour = await Tour.findById(req.params.id);
+    
     if (!tour) {
       return res
         .status(404)
         .json({ message: "Tour not found", error: "Tour not found" });
     }
-    const updatedTour = await tour.findByIdAndUpdate(req.params.id, req.body, {
+    if(req.body.name) {
+      req.body.slug = await slugify(req.body.name, { lower: true });
+    }
+    const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
@@ -165,7 +176,7 @@ export const deleteTour = async (req, res, next) => {
         .status(404)
         .json({ message: "Tour not found", error: "Tour not found" });
     }
-    await tour.findByIdAndDelete(req.params.id);
+    await tour.deleteOne();
     res.status(200).json({ message: "Tour deleted successfully", data: {}, success: true });
   } catch (error) {
     res

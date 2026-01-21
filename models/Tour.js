@@ -100,12 +100,11 @@ tourSchema.virtual("durationWeeks").get(function() {
   return durationWeeks.toFixed(2);
 });
 // Document Middleware: runs before .save() and .create()
-tourSchema.pre("save", function(next) {
+// tourSchema.pre("save", async function(next) {
 
-  this.slug = slugify(this.name, { lower: true });
-  next();
-
-});
+//   this.slug = await slugify(this.name, { lower: true });
+//   next();
+// });
 tourSchema.post("save", function(doc, next) {
   console.log(doc);
   next();
