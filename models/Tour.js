@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import slugify from "slugify";
 
 const tourSchema = new mongoose.Schema(
   {
@@ -9,6 +10,9 @@ const tourSchema = new mongoose.Schema(
       required: [true, "A tour must have a name"],
       maxlength: [40, "A tour name must have less than 40 characters"],
       minlength: [5, "A tour name must have at least 5 characters"],
+    },
+    slug: {
+      type: String,
     },
     duration:{
       type: Number,
@@ -26,10 +30,13 @@ const tourSchema = new mongoose.Schema(
       type: String,
       required: [true, "A tour must have a difficulty. Must be easy, medium, or difficult"],
       enum: ["easy", "medium", "difficult"],
+      default: "medium",
     },
     ratingsAverage:{
       type: Number,
-      default: 4.5,
+      default: 3,
+      min: [1, "Rating must be above 1.0"],
+      max: [5, "Rating must be below 5.0"],
     
     },
     ratingsQuantity:{
@@ -43,7 +50,13 @@ const tourSchema = new mongoose.Schema(
     },
     priceDiscount: {
       type: Number,
-      
+      validate: {
+        validator: function(val) {
+          return val < this.price;
+        },
+        message: "Discount price must be below the regular price",
+      },
+      default: 0,
     },
     summary: {
       type: String,
@@ -58,7 +71,7 @@ const tourSchema = new mongoose.Schema(
     },
     imageCover: {
       type: String,
-      required: [true, "A tour must have a cover image"],
+      required: [false, "A tour must have a cover image"],
     },
     images: {
       type: [String],
@@ -86,6 +99,32 @@ tourSchema.virtual("durationWeeks").get(function() {
   const durationWeeks = this.duration / 7
   return durationWeeks.toFixed(2);
 });
+// Document Middleware: runs before .save() and .create()
+tourSchema.pre("save", function(next) {
+
+  this.slug = slugify(this.name, { lower: true });
+  next();
+
+});
+tourSchema.post("save", function(doc, next) {
+  console.log(doc);
+  next();
+});
+
+//// Query Middleware: runs before .find(), .findOne(), .findOneAndUpdate(), .findOneAndDelete()
+// tourSchema.pre("find", function(next) {
+//   this.find({ slug: { $ne: undefined } });
+//   next();
+// });
+
+// /// Aggregation Middleware: runs before .aggregate()
+// tourSchema.pre("aggregate", function(next) {
+//   console.log("this", this.pipeline());
+//   this.pipeline().unshift({ $match: { slug: { $ne: undefined } } });
+//   next();
+// });
+
+
 
 // tourSchema.index({ startDates: 1 });
 
